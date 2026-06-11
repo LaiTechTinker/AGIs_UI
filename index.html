@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AegisIQ — AI Claim Intake</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <main class="workspace">
+
+        <!-- ── TOPBAR ── -->
+        <header class="topbar">
+          <!-- Logo -->
+          <a class="aegis-logo" href="#" aria-label="AegisIQ home">
+            <div class="aegis-logo-mark" aria-hidden="true">
+              <!-- shield icon -->
+              <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 1L1 4V9C1 12.87 4.13 16.5 8 17C11.87 16.5 15 12.87 15 9V4L8 1Z"
+                      stroke="#00ff9d" stroke-width="1.4" stroke-linejoin="round"/>
+                <path d="M5.5 9L7.2 10.7L10.5 7.5"
+                      stroke="#00ff9d" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="aegis-logo-text">
+              <span class="name">Aegis<span>IQ</span></span>
+              <span class="tagline">Intelligent Claims Platform</span>
+            </div>
+          </a>
+
+          <div class="topbar-divider" aria-hidden="true"></div>
+
+          <!-- App name + status -->
+          <div class="title-group">
+            <span class="topbar-app-name">FNOL · Live Intake Agent</span>
+            <span id="modelLabel" class="live-model">
+              <span class="dot ok"></span> Connecting…
+            </span>
+          </div>
+        </header>
+
+        <!-- ── MOBILE TABS ── -->
+        <nav class="mobile-tabs" aria-label="Panel tabs">
+          <button class="mobile-tab active" data-target="call-panel"   type="button">📞 Call</button>
+          <button class="mobile-tab"        data-target="claim-panel"  type="button">📋 Claim</button>
+          <button class="mobile-tab"        data-target="right-rail"   type="button">⚡ Actions</button>
+        </nav>
+
+        <!-- ── DASHBOARD ── -->
+        <section class="dashboard" aria-label="Live intake cockpit">
+
+          <!-- LEFT: Call panel -->
+          <section class="panel call-panel tab-active" aria-label="Voice and transcript">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Live Call</p>
+                <h2>Voice &amp; Transcript</h2>
+              </div>
+              <span id="callStatus" class="status-pill active">Active — listening</span>
+            </div>
+
+            <div class="voice-stage">
+              <div class="wave left" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <button id="micButton" class="mic-button" type="button" aria-label="Start voice recording">
+                <span class="mic-icon" aria-hidden="true"></span>
+              </button>
+              <div class="wave right" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+
+            <div class="call-actions">
+              <button id="newIntakeButton" class="primary-action" type="button">New Intake</button>
+              <button id="resetButton"     class="secondary-action" type="button">Reset</button>
+            </div>
+
+            <div class="transcript-header">
+              <h3>Live Transcript</h3>
+              <span id="streamingLabel">Streaming</span>
+            </div>
+            <div id="transcript" class="transcript" aria-live="polite"></div>
+
+            <form id="textForm" class="text-entry">
+              <input
+                id="textInput"
+                type="text"
+                autocomplete="off"
+                placeholder="Type claimant response…"
+                aria-label="Type a claimant response"
+              />
+              <button type="submit" aria-label="Send">Send</button>
+            </form>
+          </section>
+
+          <!-- CENTER: Claim panel -->
+          <section class="panel claim-panel" aria-label="Claim state">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Claim Packet · Live</p>
+                <h2>Claim State</h2>
+              </div>
+              <span id="autosave" class="status-line">
+                <span class="dot ok"></span> Auto-saving
+              </span>
+            </div>
+            <div id="claimFields" class="claim-sections"></div>
+          </section>
+
+          <!-- RIGHT RAIL -->
+          <aside class="right-rail">
+
+            <!-- Operator guidance -->
+            <section class="panel timeline-panel" aria-label="Operator guidance">
+              <div class="panel-header compact">
+                <div>
+                  <p class="panel-kicker">Operator Guidance</p>
+                  <h2>Next Best Action</h2>
+                </div>
+                <span class="status-line"><span class="dot neutral"></span> Live</span>
+              </div>
+              <div id="timeline" class="operator-workbench" aria-live="polite"></div>
+            </section>
+
+            <!-- Adjuster handoff -->
+            <section class="panel handoff-panel" aria-label="Adjuster handoff packet">
+              <div class="panel-header compact">
+                <div>
+                  <p class="panel-kicker">Human Handoff</p>
+                  <h2>Adjuster Packet</h2>
+                </div>
+                <div id="packetProgress" class="progress-ring" aria-label="Packet completion">0%</div>
+              </div>
+              <dl id="handoff" class="handoff-list"></dl>
+              <button id="openPacket" class="packet-button" type="button">Open Packet Preview</button>
+            </section>
+
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <!-- ── PACKET DIALOG ── -->
+    <dialog id="packetDialog" class="packet-dialog">
+      <div class="dialog-header">
+        <h2>Initial Adjuster Handoff — AegisIQ</h2>
+        <button id="closePacket" type="button" aria-label="Close packet preview">Close</button>
+      </div>
+      <pre id="packetMarkdown"></pre>
+    </dialog>
+
+    <script src="./app.js"></script>
+
+    <!-- Mobile tab switching -->
+    <script>
+      (function () {
+        const tabs    = document.querySelectorAll('.mobile-tab');
+        const panels  = {
+          'call-panel':  document.querySelector('.call-panel'),
+          'claim-panel': document.querySelector('.claim-panel'),
+          'right-rail':  document.querySelector('.right-rail'),
+        };
+
+        function isMobile() { return window.innerWidth <= 980; }
+
+        function activateTab(target) {
+          if (!isMobile()) return;
+          tabs.forEach(t => t.classList.toggle('active', t.dataset.target === target));
+          Object.entries(panels).forEach(([key, el]) => {
+            el.classList.toggle('tab-active', key === target);
+          });
+        }
+
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => activateTab(tab.dataset.target));
+        });
+
+        // On resize, restore all panels if going to desktop
+        window.addEventListener('resize', () => {
+          if (!isMobile()) {
+            Object.values(panels).forEach(el => el.classList.remove('tab-active'));
+          } else {
+            // Re-activate current active tab
+            const active = document.querySelector('.mobile-tab.active');
+            if (active) activateTab(active.dataset.target);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

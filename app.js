@@ -16,7 +16,7 @@ const modelLabel = document.querySelector("#modelLabel");
 // const DEFAULT_API_ORIGIN = "http://127.0.0.1:4177";
 const DEFAULT_API_ORIGIN = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? "http://127.0.0.1:4177"
-  : "https://agis-cpri.onrender.com";
+  : "https://aegis-wl4e.onrender.com";
 const API_ORIGIN = DEFAULT_API_ORIGIN;
 const WS_ORIGIN = API_ORIGIN.replace(/^http/, "ws");
 
